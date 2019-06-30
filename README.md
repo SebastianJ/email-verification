@@ -24,18 +24,22 @@ Or install it yourself as:
 
 Email::Verification expects a settings hash in the following format:
 
+```ruby
 settings = {
   address: "confirmation@foo.com",
   from:    "Confirmation",
   subject: /Confirm your email!/i,
   regex:   /<a href=['"](?<match>[^"]*)['"]>\s*Click here\s*<\/a>/i
 }
+```
 
 Note that the regex must present a :match capture group!
 
 Then the client is invoked using:
 
+```ruby
 Email::Verification.retrieve_verification_code(email: 'email.address@gmail.com', password: 's0mEpasSwOrD', settings: settings)
+```
 
 ## Development
 
