@@ -1,6 +1,6 @@
 # Email::Verification
 
-Email::Verification is a gem that helps out with retrieving emails and parsing out confirmation/verification codes.
+Email::Verification is a gem that helps out with retrieving emails and parsing out confirmation/verification codes and urls.
 
 Currently supported providers are Gmail and Hotmail but adding custom providers is fairly straightforward.
 
@@ -33,7 +33,7 @@ settings = {
 }
 ```
 
-Note that the regex must present a :match capture group!
+Note that the regex must include a :match capture group!
 
 Then the client is invoked using:
 
