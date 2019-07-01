@@ -15,7 +15,8 @@ module Email
         end
       end
       
-      def retrieve_verification_code(email:, password:, mailboxes: %w(Inbox), settings: {})
+      def retrieve_verification_code(email:, password:, mailboxes: %w(Inbox), settings: {}, wait: 3, retries: 3)
+        result    =   nil
         service   =   determine_email_service(email)
         
         verifier  =   case service
@@ -27,7 +28,19 @@ module Email
             nil
         end
         
-        result    =   verifier ? verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings) : nil
+        if verifier
+          begin
+            result         =   verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings)
+            
+            if result.to_s.empty?
+              sleep wait if wait
+              retries     -=  1
+            end
+            
+          end while result.to_s.empty? && retries > 0
+        end
+        
+        return result
       end
       
       def determine_email_service(email_address)
