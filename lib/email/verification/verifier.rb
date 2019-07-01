@@ -30,7 +30,7 @@ module Email
         
         if verifier
           if settings_provided?(settings) && !wait.nil? && !retries.nil?
-            result    =   retrieve_with_retries(email: email, password: password, mailboxes: mailboxes, settings: settings, wait: wait, retries: retries)
+            result    =   retrieve_with_retries(verifier, email: email, password: password, mailboxes: mailboxes, settings: settings, wait: wait, retries: retries)
           else
             result    =   verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings)
           end
@@ -39,7 +39,7 @@ module Email
         return result
       end
       
-      def retrieve_with_retries(email:, password:, mailboxes: %w(Inbox), settings: {}, wait: 3, retries: 3)
+      def retrieve_with_retries(verifier, email:, password:, mailboxes: %w(Inbox), settings: {}, wait: 3, retries: 3)
         result        =   nil
         
         begin
