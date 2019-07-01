@@ -16,10 +16,10 @@ module Email
       end
       
       def retrieve_verification_code(email:, password:, mailboxes: %w(Inbox), settings: {}, wait: 3, retries: 3)
-        result    =   nil
-        service   =   determine_email_service(email)
+        result        =   nil
+        service       =   determine_email_service(email)
         
-        verifier  =   case service
+        verifier      =   case service
           when :gmail
             ::Email::Verification::Gmail.new
           when :hotmail
@@ -29,16 +29,27 @@ module Email
         end
         
         if verifier
-          begin
-            result         =   verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings)
-            
-            if result.to_s.empty?
-              sleep wait if wait
-              retries     -=  1
-            end
-            
-          end while result.to_s.empty? && retries > 0
+          if settings_provided?(settings) && !wait.nil? && !retries.nil?
+            result    =   retrieve_with_retries(email: email, password: password, mailboxes: mailboxes, settings: settings, wait: wait, retries: retries)
+          else
+            result    =   verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings)
+          end
         end
+        
+        return result
+      end
+      
+      def retrieve_with_retries(email:, password:, mailboxes: %w(Inbox), settings: {}, wait: 3, retries: 3)
+        result        =   nil
+        
+        begin
+          result      =   verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings)
+          
+          if result.to_s.empty?
+            sleep wait if wait
+            retries  -=  1
+          end
+        end while result.to_s.empty? && retries > 0
         
         return result
       end
@@ -56,6 +67,10 @@ module Email
         end
         
         return detected_service
+      end
+      
+      def settings_provided?(settings = {})
+        settings && !settings.empty?
       end
       
     end
