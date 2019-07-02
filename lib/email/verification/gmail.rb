@@ -17,14 +17,12 @@ module Email
                 matching_name       =   settings[:from].to_s.empty? || (!settings[:from].to_s.empty? && email.from.first.name == settings[:from])
                 matching_subject    =   settings[:subject].nil?     || (!settings[:subject].nil? && email.subject =~ settings[:subject])
                 
-                if matching_name && matching_subject
-                  emails  <<  (email.html_part || email.text_part || email).body.decoded
-                  email.read! if mark_as_read
-                end
+                emails  <<  email_body(email) if matching_name && matching_subject
               else
-                emails    <<  (email.html_part || email.text_part || email).body.decoded
-                email.read! if mark_as_read
+                emails  <<  email_body(email)
               end
+              
+              email.read! if mark_as_read
             end
           end
         

@@ -27,11 +27,9 @@ module Email
               if settings_provided?(settings)
                 matching_subject    =   settings[:subject].nil? || (!settings[:subject].nil? && email.subject =~ settings[:subject])
                 
-                if email.from&.first&.strip == settings[:address] && matching_subject
-                  emails  <<  (email.html_part || email.text_part || email).body.decoded
-                end
+                emails  <<  email_body(email) if email.from&.first&.strip == settings[:address] && matching_subject
               else
-                emails    <<  (email.html_part || email.text_part || email).body.decoded
+                emails  <<  email_body(email)
               end
             end
           end
@@ -52,6 +50,15 @@ module Email
       
       def settings_provided?(settings = {})
         settings && !settings.empty?
+      end
+      
+      def email_body(email)
+        body        =   (email.html_part || email.text_part || email)&.body&.decoded
+        force_utf8(body)
+      end
+      
+      def force_utf8(string)
+        string&.encode("UTF-8", invalid: :replace, undef: :replace, replace: '')&.force_encoding('UTF-8')
       end
       
       def log(message)
