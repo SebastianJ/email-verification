@@ -2,7 +2,7 @@ module Email
   module Verification
     class Gmail < Base
       
-      def retrieve_verification_code(email:, password:, mark_as_read: true, mailboxes: [], settings: {})
+      def retrieve_verification_code(email:, password:, mark_as_read: true, count: :all, mailboxes: %w(Inbox), settings: {})
         emails    =   []
         result    =   nil
     
