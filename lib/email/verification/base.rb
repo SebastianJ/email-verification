@@ -7,7 +7,7 @@ module Email
         self.configuration      =     configuration
       end
       
-      def retrieve_verification_code(email:, password:, host:, port: 993, enable_ssl: true, mailboxes: %w(Inbox), settings: {})
+      def retrieve_verification_code(email:, password:, host:, port: 993, enable_ssl: true, count: :all, mailboxes: %w(Inbox), settings: {})
         emails    =   []
         result    =   nil
         
@@ -21,7 +21,7 @@ module Email
           end
         
           mailboxes.each do |mailbox|
-            Mail.find(mailbox: mailbox, order: :desc)&.each do |email|
+            Mail.find(mailbox: mailbox, order: :desc, count: count)&.each do |email|
               log("From: #{email.from&.first&.strip}. Subject: #{email.subject}")
               
               if settings_provided?(settings)
