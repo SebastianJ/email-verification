@@ -25,9 +25,10 @@ module Email
               log("From: #{email.from&.first&.strip}. Subject: #{email.subject}")
               
               if settings_provided?(settings)
-                matching_subject    =   settings[:subject].nil? || (!settings[:subject].nil? && email.subject =~ settings[:subject])
+                matching_address    =   email.from&.first&.strip == settings[:address]
+                matching_subject    =   settings[:subject].nil? || (!settings[:subject].nil? && !(email.subject =~ settings[:subject]).nil?)
                 
-                emails  <<  email_body(email) if email.from&.first&.strip == settings[:address] && matching_subject
+                emails  <<  email_body(email) if matching_address && matching_subject
               else
                 emails  <<  email_body(email)
               end
@@ -39,8 +40,8 @@ module Email
         end
         
         if settings_provided?(settings)
-          message   =   emails&.first
-          code      =   message&.match(settings[:regex])&.[](:match)
+          message   =   emails.first&.to_s
+          result    =   message&.match(settings[:regex])&.[](:match)
         else
           result    =   emails
         end
@@ -53,8 +54,17 @@ module Email
       end
       
       def email_body(email)
-        body        =   (email.html_part || email.text_part || email)&.body&.decoded
-        force_utf8(body)
+        body        =   (email.html_part || email.text_part || email)&.body
+        
+        begin
+          body      =   body&.decoded
+        rescue Mail::UnknownEncodingType
+          body      =   body&.encoded
+        end
+        
+        body        =   force_utf8(body) unless body.to_s.empty?
+        
+        return body
       end
       
       def force_utf8(string)

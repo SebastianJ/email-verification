@@ -15,7 +15,7 @@ module Email
               
               if settings_provided?(settings)
                 matching_name       =   settings[:from].to_s.empty? || (!settings[:from].to_s.empty? && email.from.first.name == settings[:from])
-                matching_subject    =   settings[:subject].nil?     || (!settings[:subject].nil? && email.subject =~ settings[:subject])
+                matching_subject    =   settings[:subject].nil?     || (!settings[:subject].nil? && !(email.subject =~ settings[:subject]).nil?)
                 
                 emails  <<  email_body(email) if matching_name && matching_subject
               else
