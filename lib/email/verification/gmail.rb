@@ -27,7 +27,7 @@ module Email
           end
         
         rescue Net::IMAP::BadResponseError => e
-          raise ArgumentError, "You need to enable logins for less secure apps in Gmail for #{email}!"
+          raise ::Email::Verification::Errors::InvalidCredentialsError.new("You need to enable logins for less secure apps in Gmail for #{email}!")
         end
         
         if settings_provided?(settings)

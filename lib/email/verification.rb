@@ -6,6 +6,8 @@ require "email/verification/version"
 
 require "email/verification/configuration"
 
+require "email/verification/errors"
+
 require "email/verification/base"
 require "email/verification/gmail"
 require "email/verification/hotmail"

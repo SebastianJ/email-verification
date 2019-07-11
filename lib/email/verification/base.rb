@@ -36,7 +36,7 @@ module Email
           end
           
         rescue Net::IMAP::NoResponseError => e
-          raise ArgumentError, "Please check account/password settings for email #{email}!"
+          raise ::Email::Verification::Errors::InvalidCredentialsError.new("Please check account/password settings for email #{email}!")
         end
         
         if settings_provided?(settings)
