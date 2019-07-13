@@ -1,5 +1,12 @@
 gmail:
   - gmail.com
+  
+protonmail:
+  - protonmail.com
+  - protonmail.ch
+  
+tutanota:
+  - tutanota.com
 
 hotmail:
   - hotmail.be

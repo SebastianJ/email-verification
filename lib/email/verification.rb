@@ -1,6 +1,7 @@
 require "gmail"
 require "mail"
 require "yaml"
+require "highline"
 
 require "email/verification/version"
 
@@ -34,8 +35,8 @@ module Email
       yield(configuration)
     end
     
-    def self.retrieve_verification_code(email:, password:, mailboxes: %w(Inbox), settings: {})
-      ::Email::Verification::Verifier.new.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings)
+    def self.retrieve_verification_code(email:, password: nil, mailboxes: %w(Inbox), settings: {}, mode: :interactive)
+      ::Email::Verification::Verifier.new(mode: mode).retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings)
     end
     
   end
