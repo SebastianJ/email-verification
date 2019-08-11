@@ -22,7 +22,7 @@ module Email
           retriever             =   ::Net::IMAP::Proxy::RetrieverMethod
           proxy[:host]          =   "http://#{proxy[:host]}" unless proxy[:host] =~ /^http(s)?:\/\//i
           options               =   options.merge(proxy_address: proxy[:host], proxy_port: proxy[:port])
-          log("Will use proxy #{proxy[:host]}:#{proxy[:port]} to fetch messages from #{options[:address]}:#{options[:port]}"
+          log("Will use proxy #{proxy[:host]}:#{proxy[:port]} to fetch messages from #{options[:address]}:#{options[:port]}")
         end
         
         Mail.defaults do                      
