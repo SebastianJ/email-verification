@@ -27,7 +27,7 @@ Email::Verification expects a settings hash in the following format:
 ```ruby
 settings = {
   address: "confirmation@foo.com",
-  from:    "Confirmation",
+  from:    "Confirmation", # Optional
   subject: /Confirm your email!/i,
   regex:   /<a href=['"](?<match>[^"]*)['"]>\s*Click here\s*<\/a>/i
 }
@@ -40,6 +40,18 @@ Then the client is invoked using:
 ```ruby
 Email::Verification.retrieve_verification_code(email: 'email.address@gmail.com', password: 's0mEpasSwOrD', settings: settings)
 ```
+
+### Proxy support
+
+Email::Verification can also be used together with proxies to fetch IMAP messages.
+
+Simply provide a hash { host: "http://someproxyhost.com", port: 8080 } to the retrieve_verification_code method:
+
+```ruby
+Email::Verification.retrieve_verification_code(email: 'email.address@gmail.com', password: 's0mEpasSwOrD', settings: settings, proxy: {host: "http://someproxyhost.com", port: 8080})
+```
+
+Proxy authentication is also supported using the format {host: "http://user:password@someproxyhost.com", port: 8080}
 
 ## Development
 

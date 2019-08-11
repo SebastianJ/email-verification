@@ -2,7 +2,15 @@ module Email
   module Verification
     class Gmail < Base
       
-      def retrieve_verification_code(email:, password:, mark_as_read: true, count: :all, mailboxes: %w(Inbox), settings: {})
+      def retrieve_verification_code(email:, password:, mark_as_read: true, count: :all, mailboxes: %w(Inbox), settings: {}, proxy: nil)
+        if proxy && !proxy.empty? && !proxy[:host].to_s.empty? && !proxy[:port].to_s.empty?
+          return super(email: email, password: password, host: "imap.gmail.com", port: 993, enable_ssl: true, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy)
+        else
+          return normal_retrieve_verification_code(email: email, password: password, mark_as_read: mark_as_read, count: count, mailboxes: mailboxes, settings: settings)
+        end
+      end
+      
+      def normal_retrieve_verification_code(email:, password:, mark_as_read: true, count: :all, mailboxes: %w(Inbox), settings: {})
         emails    =   []
         result    =   nil
     

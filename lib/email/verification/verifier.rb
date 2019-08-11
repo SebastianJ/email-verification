@@ -18,14 +18,14 @@ module Email
         end
       end
       
-      def retrieve_verification_code(email:, password:, mailboxes: %w(Inbox), count: :all, settings: {}, wait: 3, retries: 3)
+      def retrieve_verification_code(email:, password:, mailboxes: %w(Inbox), count: :all, settings: {}, proxy: nil, wait: 3, retries: 3)
         service       =   determine_email_service(email)
         
         result        =   case service
           when :gmail
-            perform_retrieval(::Email::Verification::Gmail.new, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, wait: wait, retries: retries)
+            perform_retrieval(::Email::Verification::Gmail.new, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy, wait: wait, retries: retries)
           when :hotmail
-            perform_retrieval(::Email::Verification::Hotmail.new, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, wait: wait, retries: retries)
+            perform_retrieval(::Email::Verification::Hotmail.new, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy, wait: wait, retries: retries)
           when :protonmail, :tutanota
             if self.mode.eql?(:interactive)
               puts "[Email::Verification::Verifier] - #{Time.now}: You're using an email account that doesn't have support for POP3 or IMAP. You have to manually retrieve the code or URL from the account and post it below."
@@ -40,7 +40,7 @@ module Email
         return result
       end
       
-      def perform_retrieval(verifier, email:, password: nil, mailboxes: %w(Inbox), count: :all, settings: {}, wait: 3, retries: 3)
+      def perform_retrieval(verifier, email:, password: nil, mailboxes: %w(Inbox), count: :all, settings: {}, proxy: nil, wait: 3, retries: 3)
         result        =   nil
         
         if password.to_s.empty? && self.mode.eql?(:interactive)
@@ -50,20 +50,20 @@ module Email
           raise ::Email::Verification::Errors::InvalidCredentialsError.new("Password wasn't provided for #{email} and automatic mode is enabled. Please provide a password or switch to interactive mode.")
         else
           if settings_provided?(settings) && !wait.nil? && !retries.nil?
-            result    =   retrieve_with_retries(verifier, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, wait: wait, retries: retries)
+            result    =   retrieve_with_retries(verifier, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy, wait: wait, retries: retries)
           else
-            result    =   verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, count: count, settings: settings)
+            result    =   verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy)
           end
         end
         
         return result
       end
       
-      def retrieve_with_retries(verifier, email:, password: nil, mailboxes: %w(Inbox), count: :all, settings: {}, wait: 3, retries: 3)
+      def retrieve_with_retries(verifier, email:, password: nil, mailboxes: %w(Inbox), count: :all, settings: {}, proxy: nil, wait: 3, retries: 3)
         result        =   nil
         
         begin
-          result      =   verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, count: count, settings: settings)
+          result      =   verifier.retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy)
           
           if result.to_s.empty?
             sleep wait if wait

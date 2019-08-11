@@ -3,6 +3,8 @@ require "mail"
 require "yaml"
 require "highline"
 
+require "net/imap/proxy"
+
 require "email/verification/version"
 
 require "email/verification/configuration"
@@ -35,8 +37,8 @@ module Email
       yield(configuration)
     end
     
-    def self.retrieve_verification_code(email:, password: nil, mailboxes: %w(Inbox), settings: {}, mode: :interactive)
-      ::Email::Verification::Verifier.new(mode: mode).retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings)
+    def self.retrieve_verification_code(email:, password: nil, mailboxes: %w(Inbox), settings: {}, mode: :interactive, proxy: nil)
+      ::Email::Verification::Verifier.new(mode: mode).retrieve_verification_code(email: email, password: password, mailboxes: mailboxes, settings: settings, proxy: proxy)
     end
     
   end

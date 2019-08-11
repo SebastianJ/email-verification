@@ -36,6 +36,7 @@ Gem::Specification.new do |spec|
   
   spec.add_dependency "gmail", "~> 0.7.1"
   spec.add_dependency "highline", "~> 2.0", ">= 2.0.2"
+  spec.add_dependency "net-imap-proxy", "~> 0.1.0"
 
   spec.add_development_dependency "bundler", "~> 1.17"
   spec.add_development_dependency "rake", "~> 10.0"

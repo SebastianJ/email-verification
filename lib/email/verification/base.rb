@@ -7,19 +7,35 @@ module Email
         self.configuration      =     configuration
       end
       
-      def retrieve_verification_code(email:, password:, host:, port: 993, enable_ssl: true, count: :all, mailboxes: %w(Inbox), settings: {})
+      def set_retriever(email:, password:, host:, port: 993, enable_ssl: true, proxy: nil)
+        retriever               =   :imap
+        
+        options                 =   {
+          address:    host,
+          port:       port,
+          user_name:  email,
+          password:   password,
+          enable_ssl: enable_ssl
+        }
+        
+        if proxy && !proxy.empty? && !proxy[:host].to_s.empty? && !proxy[:port].to_s.empty?
+          retriever             =   ::Net::IMAP::Proxy::RetrieverMethod
+          proxy[:host]          =   "http://#{proxy[:host]}" unless proxy[:host] =~ /^http(s)?:\/\//i
+          options               =   options.merge(proxy_address: proxy[:host], proxy_port: proxy[:port])
+        end
+        
+        Mail.defaults do                      
+          retriever_method retriever, options
+        end
+      end
+      
+      def retrieve_verification_code(email:, password:, host:, port: 993, enable_ssl: true, count: :all, mailboxes: %w(Inbox), settings: {}, proxy: nil)
         emails    =   []
         result    =   nil
         
         begin
-          Mail.defaults do                      
-            retriever_method :imap, address:    host,
-                                    port:       port,
-                                    user_name:  email,
-                                    password:   password,
-                                    enable_ssl: enable_ssl
-          end
-        
+          set_retriever(email: email, password: password, host: host, port: port, enable_ssl: enable_ssl, proxy: proxy)
+          
           mailboxes.each do |mailbox|
             Mail.find(mailbox: mailbox, order: :desc, count: count)&.each do |email|
               log("From: #{email.from&.first&.strip}. Subject: #{email.subject}")
