@@ -20,21 +20,27 @@ module Email
       
       def retrieve_verification_code(email:, password:, mailboxes: %w(Inbox), count: :all, settings: {}, proxy: nil, wait: 3, retries: 3)
         service       =   determine_email_service(email)
+        result        =   nil
         
-        result        =   case service
-          when :gmail
-            perform_retrieval(::Email::Verification::Gmail.new, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy, wait: wait, retries: retries)
-          when :hotmail
-            perform_retrieval(::Email::Verification::Hotmail.new, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy, wait: wait, retries: retries)
-          when :protonmail, :tutanota
-            if self.mode.eql?(:interactive)
-              puts "[Email::Verification::Verifier] - #{Time.now}: You're using an email account that doesn't have support for POP3 or IMAP. You have to manually retrieve the code or URL from the account and post it below."
-              capture_cli_input(email)
+        begin
+          result      =   case service
+            when :gmail
+              perform_retrieval(::Email::Verification::Gmail.new, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy, wait: wait, retries: retries)
+            when :hotmail
+              perform_retrieval(::Email::Verification::Hotmail.new, email: email, password: password, mailboxes: mailboxes, count: count, settings: settings, proxy: proxy, wait: wait, retries: retries)
+            when :protonmail, :tutanota
+              if self.mode.eql?(:interactive)
+                puts "[Email::Verification::Verifier] - #{Time.now}: You're using an email account that doesn't have support for POP3 or IMAP. You have to manually retrieve the code or URL from the account and post it below."
+                capture_cli_input(email)
+              else
+                raise ::Email::Verification::Errors::ImapNotSupportedError.new("#{service} doesn't have support for IMAP or POP3 retrieval! Please switch to interactive mode or use another provider!")
+              end
             else
-              raise ::Email::Verification::Errors::ImapNotSupportedError.new("#{service} doesn't have support for IMAP or POP3 retrieval! Please switch to interactive mode or use another provider!")
-            end
-          else
-            nil
+              nil
+          end
+        
+        rescue Net::HTTPServerException => e
+          raise ::Email::Verification::Errors::InvalidProxyError.new("Proxy isn't working, please retry with a new proxy!")
         end
         
         return result
