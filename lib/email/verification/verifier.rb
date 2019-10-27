@@ -39,7 +39,7 @@ module Email
               nil
           end
         
-        rescue Net::HTTPServerException => e
+        rescue Net::HTTPClientException => e
           raise ::Email::Verification::Errors::InvalidProxyError.new("Proxy isn't working, please retry with a new proxy!")
         end
         
